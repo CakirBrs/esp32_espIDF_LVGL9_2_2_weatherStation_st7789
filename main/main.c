@@ -9,7 +9,6 @@
 #include "esp_lcd_panel_ops.h"
 #include "esp_lvgl_port.h"
 
-
 /* LCD size */
 #define LCD_H_RES   (240)
 #define LCD_V_RES   (240)
@@ -19,7 +18,7 @@
 #define LCD_PIXEL_CLK_HZ    (40 * 1000 * 1000)
 #define LCD_CMD_BITS        (8)
 #define LCD_PARAM_BITS      (8)
-#define LCD_COLOR_SPACE     (ESP_LCD_COLOR_SPACE_BGR)
+#define LCD_COLOR_SPACE     (ESP_LCD_COLOR_SPACE_RGB)
 #define LCD_BITS_PER_PIXEL  (16)
 #define LCD_DRAW_BUFF_DOUBLE (1)
 #define LCD_DRAW_BUFF_HEIGHT (50)
@@ -32,8 +31,6 @@
 #define LCD_GPIO_DC         (GPIO_NUM_16)
 #define LCD_GPIO_CS         (GPIO_NUM_5)
 #define LCD_GPIO_BL         (GPIO_NUM_4)
-
-
 
 static char *TAG = "ESP_LVGL";
 
@@ -84,6 +81,7 @@ static esp_err_t app_lcd_init(void)
     esp_lcd_panel_init(lcd_panel);
     esp_lcd_panel_mirror(lcd_panel, true, true);
     esp_lcd_panel_disp_on_off(lcd_panel, true);
+    esp_lcd_panel_invert_color(lcd_panel, true);
 
     return ret;
 
@@ -159,23 +157,14 @@ static void app_main_display(void)
     lvgl_port_unlock();
 }
 
-
-
-
 void app_main(void)
 {
-    printf("ESP LVGL TEST\n\r");
-
     ESP_LOGI(TAG, "Initilize LCD.");
     app_lcd_init();
 
     ESP_LOGI(TAG, "Initilize LVGL.");
-
-    /* LVGL initialization */
     app_lvgl_init();
 
-    /* Show LVGL objects */
+    ESP_LOGI(TAG, "Show LVGL Objects.");
     app_main_display();
-
-
 }
