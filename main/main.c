@@ -42,6 +42,9 @@ static esp_lcd_panel_io_handle_t tp_io_handle = NULL;
 /* LVGL display and touch */
 static lv_display_t *lvgl_disp = NULL;
 
+lv_obj_t *main_screen;    // Ana ekran
+lv_obj_t *loading_screen; // Yükleme ekranı
+
 static esp_err_t app_lcd_init(void)
 {
     esp_err_t ret = ESP_OK;
@@ -142,6 +145,7 @@ static esp_err_t app_lvgl_init(void)
 static void app_main_display(void)
 {
     lv_obj_t *scr = lv_scr_act();
+    main_screen = lv_scr_act(); // Ana ekranı sakla
 
     /* Task lock */
     lvgl_port_lock(0);
@@ -157,6 +161,25 @@ static void app_main_display(void)
     lvgl_port_unlock();
 }
 
+
+
+void create_loading_screen() {
+  loading_screen = lv_obj_create(NULL);
+  
+  // Spinner ekle
+  lv_obj_t *spinner = lv_spinner_create(loading_screen); //loading_screen seçilmez lv_screen_active() seçilirse loading'e eklemeyip maine ekliyor.
+  lv_obj_set_size(spinner, 100, 100);
+  lv_obj_center(spinner);
+
+  // Metin ekle
+  lv_obj_t *label = lv_label_create(loading_screen);
+  lv_label_set_text(label, LV_SYMBOL_WIFI " Loading... " LV_SYMBOL_WIFI);
+  lv_obj_align(label, LV_ALIGN_BOTTOM_MID, 0, -20);
+
+
+
+}
+
 void app_main(void)
 {
     ESP_LOGI(TAG, "Initilize LCD.");
@@ -167,4 +190,10 @@ void app_main(void)
 
     ESP_LOGI(TAG, "Show LVGL Objects.");
     app_main_display();
+
+    create_loading_screen();
+    lv_scr_load(loading_screen);
+    vTaskDelay(5000 / portTICK_PERIOD_MS);
+    lv_scr_load(main_screen);         // Ana ekrana dön
+    lv_obj_del(loading_screen);       // Yükleme ekranını sil
 }
